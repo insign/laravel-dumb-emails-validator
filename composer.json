@@ -1,0 +1,40 @@
+{
+  "name": "insign/dumb-emails-validator",
+  "description": "Laravel validator for common email domain typos",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Hélio Oliveira",
+      "email": "open@helio.me"
+    }
+  ],
+  "require": {
+    "php": "^7.4|^8.0",
+    "illuminate/support": "^8.0|^9.0|^10.0|^11.0",
+    "illuminate/validation": "^8.0|^9.0|^10.0|^11.0"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^6.0|^7.0|^8.0|^9.0",
+    "phpunit/phpunit": "^9.0|^10.0|^11.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "insign\\DumbEmailsValidator\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "insign\\DumbEmailsValidator\\Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "insign\\DumbEmailsValidator\\DumbEmailsValidatorServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
