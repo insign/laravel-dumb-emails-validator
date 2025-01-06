@@ -1,6 +1,6 @@
 <?php
 
-namespace SeuVendor\DumbEmailsValidator;
+namespace insign\DumbEmailsValidator;
 
 use Illuminate\Support\Str;
 
@@ -34,8 +34,9 @@ class DumbEmailsValidator
     foreach ($this->corrections as $wrong => $correct) {
       if (Str::lower($domain) === $wrong) {
         $suggestion = $local . '@' . $correct;
-        // Store the suggestion in the validator's custom data
-        $validator->customData['suggestion'] = $suggestion;
+        $validator->addReplacer('dumb_email', function ($message, $attribute, $rule, $parameters) use ($suggestion) {
+          return str_replace(':suggestion', $suggestion, $message);
+        });
         return false;
       }
     }

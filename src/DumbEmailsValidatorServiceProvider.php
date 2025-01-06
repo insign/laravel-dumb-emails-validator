@@ -4,6 +4,7 @@ namespace insign\DumbEmailsValidator;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
+use SeuVendor\DumbEmailsValidator\DumbEmailsValidator;
 
 class DumbEmailsValidatorServiceProvider extends ServiceProvider
 {
@@ -17,15 +18,12 @@ class DumbEmailsValidatorServiceProvider extends ServiceProvider
       return (new DumbEmailsValidator())->validate($attribute, $value, $parameters, $validator);
     });
     
-    // Replace the old addReplacer with this
-    Validator::replacer('dumb_email', function ($message, $attribute, $rule, $parameters) use ($validator) {
-      $customMessage = str_replace(':attribute', $attribute, $message);
-      
-      if (isset($validator->customData['suggestion'])) {
-        return str_replace(':suggestion', $validator->customData['suggestion'], $customMessage);
-      }
-      
-      return str_replace(':suggestion', '', $customMessage);
+    Validator::replacer('dumb_email', function ($message, $attribute, $rule, $parameters) {
+      return str_replace(':attribute', $attribute, $message);
+    });
+    
+    Validator::addReplacer('dumb_email', function ($message, $attribute, $rule, $parameters) {
+      return str_replace(':suggestion', '', $message);
     });
     
     $this->loadTranslationsFrom(__DIR__.'/lang', 'dumb-emails');
