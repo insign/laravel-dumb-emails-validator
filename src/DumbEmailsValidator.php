@@ -13,7 +13,7 @@ class DumbEmailsValidator
     $this->corrections = config('dumb-emails.corrections');
   }
   
-  public function validate($attribute, $value, $parameters, $validator)
+  public function validate($attribute, $value, $parameters, $validator) : bool
   {
     if (empty($value)) {
       return true;

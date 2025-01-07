@@ -4,7 +4,6 @@ namespace insign\DumbEmailsValidator;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
-use SeuVendor\DumbEmailsValidator\DumbEmailsValidator;
 
 class DumbEmailsValidatorServiceProvider extends ServiceProvider
 {
