@@ -22,7 +22,7 @@ class DumbEmailsValidatorServiceProvider extends ServiceProvider
       return str_replace(':attribute', $attribute, $message);
     });
     
-    Validator::addReplacer('dumb_email', function ($message, $attribute, $rule, $parameters) {
+    Validator::replacer('dumb_email', function ($message, $attribute, $rule, $parameters) {
       return str_replace(':suggestion', '', $message);
     });
     
