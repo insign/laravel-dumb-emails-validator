@@ -12,7 +12,7 @@ This package provides a custom validator for Laravel that checks for common typo
 2.  Publish the config file (optional):
 
     ```bash
-    php artisan vendor:publish --provider="insign\DumbEmailsValidator\DumbEmailsValidatorServiceProvider" --tag="config"
+    php artisan vendor:publish --provider="insign\DumbEmailsValidator\DumbEmailsValidatorServiceProvider"
     ```
 
 ## Usage
@@ -34,7 +34,7 @@ if ($validator->fails()) {
 
 ## Customization
 
-You can customize the list of domain corrections and the error message in the `config/dumb-emails.php` file.
+You can customize the list of domain corrections, and the error message in the `config/dumb-emails.php` file.
 
 ```php
 return [

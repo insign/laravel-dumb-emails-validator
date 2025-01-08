@@ -28,8 +28,8 @@ class DumbEmailsValidatorServiceProvider extends ServiceProvider
   {
     if ($this->app->runningInConsole()) {
       $this->publishes([
-                         __DIR__.'/../config/dumb-emails.php' => config_path('dumb-emails.php'),
-                       ], 'config');
+                         __DIR__.'/config/dumb-emails.php' => config_path('dumb-emails.php'),
+                       ]);
     }
     
     Validator::extend('dumb_email', 'insign\DumbEmailsValidator\DumbEmailsValidator@validate');
