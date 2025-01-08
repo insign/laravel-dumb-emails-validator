@@ -19,6 +19,7 @@ class DumbEmailsValidator
     
     foreach ($corrections as $wrong => $right) {
       if (Str::endsWith($domain, $wrong)) {
+        $validator->setCustomAttribute('correct_domain', $right);
         $validator->setCustomMessages([
                                         'dumb_email' => config('dumb-emails.message', "Did you mean @{$right}?"),
                                       ]);

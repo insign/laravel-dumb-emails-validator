@@ -33,5 +33,13 @@ class DumbEmailsValidatorServiceProvider extends ServiceProvider
     }
     
     Validator::extend('dumb_email', 'insign\DumbEmailsValidator\DumbEmailsValidator@validate');
+    
+    Validator::replacer('dumb_email', function ($message, $attribute, $rule, $parameters) {
+      return str_replace(':attribute', $attribute, $message);
+    });
+    
+    Validator::replacer('dumb_email', function ($message, $attribute, $rule, $parameters) {
+      return str_replace(':correct_domain', $parameters['correct_domain'], $message);
+    });
   }
 }
