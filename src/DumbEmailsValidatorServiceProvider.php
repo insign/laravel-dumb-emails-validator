@@ -32,14 +32,23 @@ class DumbEmailsValidatorServiceProvider extends ServiceProvider
                        ]);
     }
     
-    Validator::extend('dumb_email', 'insign\DumbEmailsValidator\DumbEmailsValidator@validate');
-    
-    Validator::replacer('dumb_email', function ($message, $attribute, $rule, $parameters) {
-      return str_replace(':attribute', $attribute, $message);
+    Validator::extend('dumb_email', function ($attribute, $value, $parameters, $validator) {
+      $dumbValidator = new DumbEmailsValidator();
+      $result = $dumbValidator->validate($attribute, $value, $parameters, $validator);
+      
+      if (is_array($result)) {
+        $validator->customData = $result[1];
+        return $result[0];
+      }
+      
+      return $result;
     });
     
-    Validator::replacer('dumb_email', function ($message, $attribute, $rule, $parameters) {
-      return str_replace(':correct_domain', $parameters['correct_domain'], $message);
+    Validator::replacer('dumb_email', function ($message, $attribute, $rule, $parameters, $validator) {
+      if (isset($validator->customData['correct_domain'])) {
+        return str_replace(':correct_domain', $validator->customData['correct_domain'], $message);
+      }
+      return $message;
     });
   }
 }
