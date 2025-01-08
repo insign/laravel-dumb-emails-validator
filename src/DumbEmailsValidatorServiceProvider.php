@@ -37,6 +37,8 @@ class DumbEmailsValidatorServiceProvider extends ServiceProvider
     
     // Substituir placeholder ':attribute' e ':correct_domain'
     Validator::replacer('dumb_email', function ($message, $attribute, $rule, $parameters, $validator) {
+      $message = config('dumb-emails.message', $message);
+      
       // Substituir :attribute pelo nome do campo
       $message = str_replace(':attribute', $attribute, $message);
       
