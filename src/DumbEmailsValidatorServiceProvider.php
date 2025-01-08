@@ -7,32 +7,31 @@ use Illuminate\Support\Facades\Validator;
 
 class DumbEmailsValidatorServiceProvider extends ServiceProvider
 {
-  public function boot()
-  {
-    $this->publishes([
-                       __DIR__ . '/config/dumb-emails.php' => config_path('dumb-emails.php'),
-                     ], 'config');
-    
-    Validator::extend('dumb_email', function ($attribute, $value, $parameters, $validator) {
-      return (new DumbEmailsValidator())->validate($attribute, $value, $parameters, $validator);
-    });
-    
-    Validator::replacer('dumb_email', function ($message, $attribute, $rule, $parameters) {
-      return str_replace(':attribute', $attribute, $message);
-    });
-    
-    Validator::replacer('dumb_email', function ($message, $attribute, $rule, $parameters) {
-      return str_replace(':suggestion', '', $message);
-    });
-    
-    $this->loadTranslationsFrom(__DIR__.'/lang', 'dumb-emails');
-  }
-  
+  /**
+   * Register services.
+   *
+   * @return void
+   */
   public function register()
   {
     $this->mergeConfigFrom(
-      __DIR__ . '/config/dumb-emails.php',
-      'dumb-emails'
+      __DIR__.'/../config/dumb-emails.php', 'dumb-emails'
     );
+  }
+  
+  /**
+   * Bootstrap services.
+   *
+   * @return void
+   */
+  public function boot()
+  {
+    if ($this->app->runningInConsole()) {
+      $this->publishes([
+                         __DIR__.'/../config/dumb-emails.php' => config_path('dumb-emails.php'),
+                       ], 'config');
+    }
+    
+    Validator::extend('dumb_email', 'insign\DumbEmailsValidator\DumbEmailsValidator@validate');
   }
 }

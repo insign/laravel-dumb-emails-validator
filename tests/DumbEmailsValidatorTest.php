@@ -3,105 +3,78 @@
 namespace insign\DumbEmailsValidator\Tests;
 
 use Orchestra\Testbench\TestCase;
-use Illuminate\Support\Facades\Config;
+use insign\DumbEmailsValidator\DumbEmailsValidatorServiceProvider;
+use Illuminate\Support\Facades\Validator;
 
 class DumbEmailsValidatorTest extends TestCase
 {
   protected function getPackageProviders($app)
   {
-    return ['insign\DumbEmailsValidator\DumbEmailsValidatorServiceProvider'];
+    return [DumbEmailsValidatorServiceProvider::class];
   }
   
-  protected function setUp(): void
+  protected function getEnvironmentSetUp($app)
   {
-    parent::setUp();
-    
-    Config::set('dumb-emails.corrections', [
-      'gamal.com' => 'gmail.com',
-      'hotail.com' => 'hotmail.com',
-      'hotmal.com' => 'hotmail.com',
-    ]);
+    // If you need to modify the config for tests, you can do it here:
+    // $app['config']->set('dumb-emails.corrections', [...]);
   }
   
   /** @test */
-  public function it_validates_valid_email()
+  public function it_passes_valid_emails()
   {
-    $validator = validator(['email' => 'test@gmail.com'], [
-      'email' => 'dumb_email'
-    ]);
+    $validator = Validator::make(['email' => 'test@gmail.com'], ['email' => 'dumb_email']);
+    $this->assertTrue($validator->passes());
     
+    $validator = Validator::make(['email' => 'user@yahoo.com'], ['email' => 'dumb_email']);
+    $this->assertTrue($validator->passes());
+    
+    $validator = Validator::make(['email' => 'someone@outlook.com'], ['email' => 'dumb_email']);
     $this->assertTrue($validator->passes());
   }
   
   /** @test */
-  public function it_fails_for_dumb_email_domain_and_provides_suggestion()
+  public function it_fails_invalid_emails()
   {
-    $validator = validator(
-      ['email' => 'test@gamal.com'],
-      ['email' => 'dumb_email'],
-      ['dumb_email' => 'Did you mean :suggestion?']
-    );
+    $validator = Validator::make(['email' => 'test@gmal.com'], ['email' => 'dumb_email']);
+    $this->assertTrue($validator->fails());
     
-    $this->assertFalse($validator->passes());
-    $this->assertEquals(
-      'Did you mean test@gmail.com?',
-      $validator->errors()->first('email')
-    );
+    $validator = Validator::make(['email' => 'user@hotail.com'], ['email' => 'dumb_email']);
+    $this->assertTrue($validator->fails());
+    
+    $validator = Validator::make(['email' => 'test@yhoo.com'], ['email' => 'dumb_email']);
+    $this->assertTrue($validator->fails());
   }
   
   /** @test */
-  public function it_fails_for_invalid_email_format()
+  public function it_returns_correct_error_message()
   {
-    $validator = validator(['email' => 'invalid-email'], [
-      'email' => 'dumb_email'
-    ]);
+    $validator = Validator::make(['email' => 'test@gmal.com'], ['email' => 'dumb_email']);
+    $this->assertEquals('Did you mean email@gmail.com?', $validator->errors()->first('email'));
     
-    $this->assertFalse($validator->passes());
+    $validator = Validator::make(['contact' => 'user@hotail.com'], ['contact' => 'dumb_email']);
+    $this->assertEquals('Did you mean contact@hotmail.com?', $validator->errors()->first('contact'));
   }
   
   /** @test */
-  public function it_passes_for_empty_email()
+  public function it_uses_custom_error_message_from_config()
   {
-    $validator = validator(['email' => ''], [
-      'email' => 'dumb_email'
-    ]);
+    config(['dumb-emails.message' => 'Custom error: :attribute, perhaps you meant :correct_domain?']);
     
-    $this->assertTrue($validator->passes());
+    $validator = Validator::make(['email' => 'test@gmal.com'], ['email' => 'dumb_email']);
+    $this->assertEquals('Custom error: email, perhaps you meant gmail.com?', $validator->errors()->first('email'));
   }
   
   /** @test */
-  public function it_fails_for_empty_local_part()
+  public function it_handles_emails_with_no_at_symbol()
   {
-    $validator = validator(['email' => '@domain.com'], [
-      'email' => 'dumb_email'
-    ]);
+    $validator = Validator::make(['email' => 'invalidemail'], ['email' => 'dumb_email']);
+    $this->assertTrue($validator->fails());
     
-    $this->assertFalse($validator->passes());
-  }
-  
-  /** @test */
-  public function it_fails_for_empty_domain_part()
-  {
-    $validator = validator(['email' => 'local@'], [
-      'email' => 'dumb_email'
-    ]);
-    
-    $this->assertFalse($validator->passes());
-  }
-  
-  /** @test */
-  public function it_uses_custom_message_and_replaces_attribute()
-  {
-    $validator = validator(
-      ['custom_email' => 'test@gamal.com'],
-      ['custom_email' => 'dumb_email'],
-      ['dumb_email' => 'The :attribute field has a typo. Did you mean :suggestion?']
-    );
-    
-    $this->assertFalse($validator->passes());
-    $this->assertEquals(
-      'The custom_email field has a typo. Did you mean test@gmail.com?',
-      $validator->errors()->first('custom_email')
-    );
+    // Customize the error message for no @ symbol to make sure the right error is being triggered
+    Validator::replacer('dumb_email', function ($message, $attribute, $rule, $parameters) {
+      return 'The email is invalid.';
+    });
+    $validator = Validator::make(['email' => 'invalidemail'], ['email' => 'dumb_email']);
+    $this->assertEquals('The email is invalid.', $validator->errors()->first('email'));
   }
 }

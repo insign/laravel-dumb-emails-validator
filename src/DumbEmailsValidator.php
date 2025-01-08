@@ -6,37 +6,22 @@ use Illuminate\Support\Str;
 
 class DumbEmailsValidator
 {
-  protected array $corrections;
-  
-  public function __construct()
+  public function validate($attribute, $value, $parameters, $validator)
   {
-    $this->corrections = config('dumb-emails.corrections');
-  }
-  
-  public function validate($attribute, $value, $parameters, $validator) : bool
-  {
-    if (empty($value)) {
-      return true;
+    $corrections = config('dumb-emails.corrections');
+    $emailParts = explode('@', $value);
+    
+    if (count($emailParts) != 2) {
+      return false; // Invalid email format
     }
     
-    $parts = explode('@', $value);
+    $domain = $emailParts[1];
     
-    if (count($parts) !== 2) {
-      return false;
-    }
-    
-    [$local, $domain] = $parts;
-    
-    if (empty($local) || empty($domain)) {
-      return false;
-    }
-    
-    foreach ($this->corrections as $wrong => $correct) {
-      if (Str::lower($domain) === $wrong) {
-        $suggestion = $local . '@' . $correct;
-        $validator->addReplacer('dumb_email', function ($message, $attribute, $rule, $parameters) use ($suggestion) {
-          return str_replace(':suggestion', $suggestion, $message);
-        });
+    foreach ($corrections as $wrong => $right) {
+      if (Str::endsWith($domain, $wrong)) {
+        $validator->setCustomMessages([
+                                        'dumb_email' => config('dumb-emails.message', "Did you mean @{$right}?"),
+                                      ]);
         return false;
       }
     }
