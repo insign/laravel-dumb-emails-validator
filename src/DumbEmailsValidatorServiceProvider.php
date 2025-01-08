@@ -15,7 +15,7 @@ class DumbEmailsValidatorServiceProvider extends ServiceProvider
   public function register()
   {
     $this->mergeConfigFrom(
-      __DIR__.'/../config/dumb-emails.php', 'dumb-emails'
+      __DIR__.'/config/dumb-emails.php', 'dumb-emails'
     );
   }
   
