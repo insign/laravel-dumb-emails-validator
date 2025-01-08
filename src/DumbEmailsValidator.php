@@ -12,14 +12,16 @@ class DumbEmailsValidator
     $emailParts = explode('@', $value);
     
     if (count($emailParts) != 2) {
-      return false; // Invalid email format
+      return false; // Formato de email inválido
     }
     
     $domain = $emailParts[1];
     
     foreach ($corrections as $wrong => $right) {
       if (Str::endsWith($domain, $wrong)) {
-        return [false, ['correct_domain' => $right]];
+        // Armazenar o domínio correto como parâmetro para ser usado no replacer
+        $validator->setData(array_merge($validator->getData(), ['correct_domain' => $right]));
+        return false;
       }
     }
     
