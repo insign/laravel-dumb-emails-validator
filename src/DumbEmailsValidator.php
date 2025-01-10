@@ -18,7 +18,7 @@ class DumbEmailsValidator
     $domain = $emailParts[1];
     
     foreach ($corrections as $wrong => $right) {
-      if (Str::endsWith($domain, $wrong)) {
+      if (Str::endsWith('@'.$domain, $wrong)) {
         // Armazenar o domínio correto como parâmetro para ser usado no replacer
         $validator->setData(array_merge($validator->getData(), ['correct_domain' => $right]));
         return false;
