@@ -6,7 +6,7 @@ use Illuminate\Support\Str;
 
 class DumbEmailsValidator
 {
-  public function validate($attribute, $value, $parameters, $validator)
+  public function validate($attribute, $value, $parameters, $validator) : bool
   {
     $corrections = config('dumb-emails.corrections');
     $emailParts = explode('@', $value);
@@ -15,10 +15,8 @@ class DumbEmailsValidator
       return false; // Formato de email inválido
     }
     
-    $domain = $emailParts[1];
-    
     foreach ($corrections as $wrong => $right) {
-      if (Str::endsWith('@'.$domain, $wrong)) {
+      if (Str::endsWith($value, '@' . $wrong)) {
         // Armazenar o domínio correto como parâmetro para ser usado no replacer
         $validator->setData(array_merge($validator->getData(), ['correct_domain' => $right]));
         return false;
